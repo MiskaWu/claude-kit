@@ -1,0 +1,267 @@
+/* 導演頁的疊加層：字卡、裝置鈕、片尾卡。尺寸照 540×960 的 CSS 像素寫（輸出是 2 倍＝1080×1920）。
+   直式短影音的平台介面會蓋住上方約 14%、下方約 35%、右側一條：字卡放在 15%–60% 之間，重要的東西不放右下。 */
+body {
+  padding: 0;
+}
+#stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- 裝置鈕：和遊戲的觸控鈕同樣子（Game.svelte），亮＝核心說這個裝置正在作動 ---- */
+#pads {
+  position: fixed;
+  left: 22px;
+  right: 22px;
+  top: 71%;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0;
+  transition: none;
+}
+#pads.on {
+  opacity: 1;
+}
+#pads .pair {
+  display: flex;
+  gap: 14px;
+}
+.pad {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.18);
+}
+.pad.word {
+  font-size: 16px;
+}
+.pad.firing {
+  background: var(--accent);
+  color: #04121c;
+  box-shadow: 0 0 22px rgba(92, 200, 255, 0.7);
+  transform: scale(1.06);
+}
+.pad.idle {
+  opacity: 0.35;
+}
+
+#demo {
+  position: fixed;
+  top: 15%;
+  left: 24px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--accent);
+  color: #04121c;
+  font-size: 13px;
+  font-weight: 800;
+  display: none;
+}
+#demo.on {
+  display: block;
+}
+
+/* ---- 字卡 ---- */
+#captions {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+.cap {
+  word-break: auto-phrase;
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 22%;
+  transform: translateY(-50%);
+  text-align: center;
+  font-weight: 900;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: #fff;
+  text-wrap: balance;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 7px rgba(6, 8, 20, 0.92);
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+  animation: pop 0.24s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.cap em {
+  font-style: normal;
+  color: var(--warn);
+}
+.cap.out {
+  opacity: 0;
+  transition: none;
+}
+.cap.hook {
+  top: 20%;
+  font-size: 46px;
+}
+.cap.beat {
+  font-size: 36px;
+}
+.cap.big {
+  top: 40%;
+  font-size: 72px;
+  font-family: Inter, var(--sans);
+  font-weight: 900;
+  -webkit-text-stroke-width: 9px;
+}
+.cap.meter {
+  top: 34%;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 40px;
+  font-weight: 800;
+  -webkit-text-stroke-width: 7px;
+  animation: none;
+}
+.cap.meter em {
+  color: var(--accent);
+}
+.cap.small {
+  top: 30%;
+  font-size: 22px;
+  font-weight: 800;
+  -webkit-text-stroke-width: 5px;
+}
+.cap.tag {
+  left: 50%;
+  right: auto;
+  top: 28%;
+  transform: translate(-50%, -50%);
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: var(--bad);
+  font-size: 22px;
+  font-weight: 900;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  white-space: nowrap;
+}
+/* 計數器放在遊戲自己的落地大字（畫面 36% 的高度）上面，不疊在一起 */
+.cap.counter {
+  top: 23%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  animation: pop 0.24s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.cap.counter .label {
+  font-size: 26px;
+  -webkit-text-stroke-width: 6px;
+  color: var(--bad);
+}
+.cap.counter.score .label {
+  color: var(--good);
+}
+.cap.counter .num {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-size: 84px;
+  font-weight: 800;
+  -webkit-text-stroke-width: 10px;
+  line-height: 1;
+}
+@keyframes pop {
+  0% {
+    opacity: 0;
+    scale: 0.55;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.08;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
+/* ---- 片尾卡 ---- */
+#end {
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 0 36px 22%;
+  text-align: center;
+  /* 背景照樣是遊戲畫面，模糊掉：飛過的零件變成柔和的光點，不會像畫面壞掉 */
+  background: radial-gradient(ellipse at 50% 40%, rgba(10, 14, 26, 0.62), rgba(7, 10, 22, 0.9) 70%);
+  backdrop-filter: blur(9px) saturate(1.15);
+}
+#end.on {
+  display: flex;
+}
+#end .mark {
+  font-family: Inter, var(--sans);
+  font-size: 92px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #fff;
+  animation: pop 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+#end .line {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1.3;
+  color: #fff;
+  text-wrap: balance;
+  animation: rise 0.3s 0.12s ease-out both;
+}
+#end .line em {
+  font-style: normal;
+  color: var(--warn);
+}
+#end .cta {
+  /* 日文照詞組斷行（不會斷成「遊べ／る」） */
+  word-break: auto-phrase;
+  text-wrap: balance;
+  margin-top: 8px;
+  padding: 14px 26px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #04121c;
+  font-size: 24px;
+  font-weight: 900;
+  animation: rise 0.3s 0.24s ease-out both;
+}
+#end .url {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--quiet);
+  animation: rise 0.3s 0.32s ease-out both;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+#flash {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}

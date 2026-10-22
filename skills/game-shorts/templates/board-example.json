@@ -1,0 +1,227 @@
+{
+  "id": "clip01-near-miss",
+  "note": "差一點：看起來快成功了→落地卻摔爛→兩種不同的死法→完美落地。借「失敗轉成功」與懸念鉤子；失敗要看起來「我應該做得到」",
+  "bpm": 120,
+  "locale": "zh-Hant",
+  "music": [
+    {
+      "at": "0b",
+      "part": "groove"
+    },
+    {
+      "at": "5.5b",
+      "part": "stop"
+    },
+    {
+      "at": "6b",
+      "part": "drop"
+    },
+    {
+      "at": "18b",
+      "part": "break"
+    },
+    {
+      "at": "25b",
+      "part": "drop"
+    },
+    {
+      "at": "28b",
+      "part": "outro"
+    }
+  ],
+  "shots": [
+    {
+      "take": "noThrust",
+      "align": {
+        "event": "touchdown",
+        "at": "6b"
+      },
+      "len": "6b",
+      "camera": {
+        "mode": "auto"
+      },
+      "say": [
+        {
+          "at": "0b",
+          "len": "5.5b",
+          "style": "hook",
+          "text": {
+            "zh-Hant": "這台會**落地**嗎？",
+            "zh-Hans": "这台会**落地**吗？",
+            "ja": "この車、**着地**できる？",
+            "en": "Will it **land**?"
+          }
+        },
+        {
+          "at": "1.5b",
+          "len": "4b",
+          "style": "small",
+          "text": {
+            "zh-Hant": "車自己開，你只管 吸附・噴射・翻轉",
+            "zh-Hans": "车自己开，你只管 吸附・喷射・翻转",
+            "ja": "運転は自動。押すのは 吸着・噴射・回転 だけ",
+            "en": "It drives itself. You just grip, boost, flip."
+          }
+        }
+      ],
+      "sfx": [
+        {
+          "at": "5.5b",
+          "kind": "stop"
+        }
+      ]
+    },
+    {
+      "cont": true,
+      "len": "4b",
+      "sfx": [
+        {
+          "at": "0b",
+          "kind": "impact"
+        }
+      ],
+      "say": [
+        {
+          "at": "0.25s",
+          "len": "3.5b",
+          "style": "counter",
+          "value": "carnage"
+        }
+      ]
+    },
+    {
+      "take": "holdGrip",
+      "align": {
+        "event": "touchdown",
+        "at": "1b"
+      },
+      "len": "4b",
+      "flash": true,
+      "punch": 0.15,
+      "sfx": [
+        {
+          "at": "0b",
+          "kind": "whoosh"
+        },
+        {
+          "at": "1b",
+          "kind": "impact"
+        }
+      ],
+      "say": [
+        {
+          "at": "0b",
+          "len": "1b",
+          "style": "small",
+          "text": {
+            "zh-Hant": "一直按著吸附",
+            "zh-Hans": "一直按着吸附",
+            "ja": "吸着しっぱなし",
+            "en": "Held grip too long"
+          }
+        },
+        {
+          "at": "1.2b",
+          "len": "2.6b",
+          "style": "counter",
+          "value": "carnage"
+        }
+      ]
+    },
+    {
+      "take": "overFlip",
+      "align": {
+        "event": "touchdown",
+        "at": "1.5b"
+      },
+      "len": "4b",
+      "flash": true,
+      "punch": 0.15,
+      "sfx": [
+        {
+          "at": "0b",
+          "kind": "whoosh"
+        },
+        {
+          "at": "1.5b",
+          "kind": "impact"
+        }
+      ],
+      "say": [
+        {
+          "at": "0b",
+          "len": "1.5b",
+          "style": "small",
+          "text": {
+            "zh-Hant": "翻過頭",
+            "zh-Hans": "翻过头",
+            "ja": "回しすぎ",
+            "en": "Over-flipped"
+          }
+        },
+        {
+          "at": "1.7b",
+          "len": "2.1b",
+          "style": "counter",
+          "value": "carnage"
+        }
+      ]
+    },
+    {
+      "take": "perfect",
+      "align": {
+        "event": "touchdown",
+        "at": "7b"
+      },
+      "len": "10b",
+      "flash": true,
+      "sfx": [
+        {
+          "at": "0b",
+          "kind": "whoosh"
+        },
+        {
+          "at": "6.9b",
+          "kind": "riser"
+        }
+      ],
+      "say": [
+        {
+          "at": "0b",
+          "len": "4b",
+          "style": "beat",
+          "text": {
+            "zh-Hant": "其實可以這樣",
+            "zh-Hans": "其实可以这样",
+            "ja": "本当はこう",
+            "en": "Or… like this"
+          }
+        },
+        {
+          "at": "7.3b",
+          "len": "2.6b",
+          "style": "counter",
+          "value": "score"
+        }
+      ]
+    },
+    {
+      "end": {
+        "line": {
+          "zh-Hant": "你會是**哪一種**？",
+          "zh-Hans": "你会是**哪一种**？",
+          "ja": "あなたは**どっち**？",
+          "en": "Which one are **you**?"
+        },
+        "cta": {
+          "zh-Hant": "免下載・瀏覽器直接玩",
+          "zh-Hans": "免下载・浏览器直接玩",
+          "ja": "ダウンロード不要・ブラウザで遊べる",
+          "en": "No download · Play in browser"
+        },
+        "url": "play.example.com"
+      },
+      "len": "6b"
+    }
+  ]
+}
