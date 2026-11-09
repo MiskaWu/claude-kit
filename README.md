@@ -1,9 +1,69 @@
 # claude-kit
 
-我日常讓 Claude Code 寫遊戲、做工具時沉澱下來的兩樣東西：
+讓 Claude Code 放手做事，又不會把遠端洗成雜訊、沒問過就改 GitLab、把 token 印進對話。給每天讓 agent 自己跑指令的人。
 
-- **防護 hooks**：讓 agent 可以放手做事，又不會把遠端洗成雜訊、不會在沒問過的情況下改 GitLab、不會把 token 印進對話。
-- **技能（skills）**：遊戲從設計、美術、打磨、短影音到發行的職能方法，以及 Claude Code mod 面板的做法。
+這是我日常讓 Claude Code 寫遊戲、做工具時整理出來的兩樣東西：
+
+- **防護 hooks**：兩支 `PreToolUse` hook 和兩個指令，只需要 Python 3 標準函式庫。
+- **技能（skills）**：遊戲從設計、美術、打磨、短影音到發行的職能方法，以及 Claude Code mod 面板的做法。可以只挑想要的裝。
+
+## 用起來長這樣
+
+裝好之後不用下任何指令。Claude 每次要跑 Bash，hook 會先看過這條指令，決定放行、問你、或擋下。被擋下時 Claude 會收到理由，裡面寫了該怎麼收尾；要問你時，理由會顯示在確認提示上。
+
+| Claude 想跑的指令 | 結果 | hook 給的理由 |
+|---|---|---|
+| 在 worktree 裡 `git push origin fix-login` | 擋下 | 規則：worktree 裡的分支不推。這個 push 會從 worktree 發出去，而 worktree 分支堆在別人會 pull 的遠端只會變成雜訊。請改為：完成 commit，然後回報分支名稱、worktree 路徑與 commit 摘要，由使用者自己整理／合併到目標分支後再推。 |
+| 在你自己的 checkout 裡 `git push origin main` | 放行 | |
+| `git commit -m "docs: 說明 git push origin main 的限制"`（commit 訊息裡的 push 不算） | 放行 | |
+| `glab api projects/42/pipelines` | 放行 | |
+| `glab api projects/42/issues -f title=hello` | 問你 | GitLab 寫入：glab api POST projects/42/issues。這會改 GitLab 上的狀態（或讀到機密），請使用者確認後才執行。 |
+| `glab issue close 7` | 問你 | GitLab 寫入：glab issue close。這會改 GitLab 上的狀態（或讀到機密），請使用者確認後才執行。 |
+| `glab api projects/42/variables/DEPLOY_KEY` | 問你 | 讀 CI 變數：glab api projects/42/variables/DEPLOY_KEY。變數值是機密，讀了就會進到對話裡，先確認。 |
+| `glab config get token` | 擋下 | glab config get token 會把 token 印出來。token 進到對話就等於外洩，這類指令一律擋下。要確認 token 能不能用，請改打實際的 API（例如 `glab api user`）。 |
+
+<sub>表格是把 payload 餵給兩支 hook 實際跑出來的結果。理由取自 hook 的輸出，多行併成一行，第一列只留開頭並省略 worktree 路徑。</sub>
+
+想在安裝前試一次，clone 下來把一筆 payload 餵給 hook 就好，不碰 Claude Code 的設定：
+
+```console
+$ echo '{"tool_name":"Bash","tool_input":{"command":"glab config get token"},"cwd":"/tmp"}' | python3 hooks/gitlab-api-guard.py
+{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "glab config get token 會把 token 印出來。\ntoken 進到對話就等於外洩，這類指令一律擋下。要確認 token 能不能用，請改打實際的 API（例如 `glab api user`）。"}}
+```
+
+技能也不用下指令，Claude 會依技能的說明判斷何時載入。例如你說「這個玩法為什麼不好玩」會用到 `game-design`，說「剪一支預告片」會用到 `game-shorts`。
+
+## 安裝
+
+```bash
+git clone https://github.com/MiskaWu/claude-kit.git ~/claude-kit
+mkdir -p ~/.claude/hooks ~/.claude/skills ~/.claude/commands
+ln -s ~/claude-kit/hooks/*.py ~/.claude/hooks/
+ln -s ~/claude-kit/skills/* ~/.claude/skills/
+ln -s ~/claude-kit/commands/*.md ~/.claude/commands/
+```
+
+技能可以只挑想要的連結。hooks 要再掛進 `~/.claude/settings.json`：
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "/usr/bin/python3 $HOME/.claude/hooks/git-push-guard.py", "timeout": 10 },
+          { "type": "command", "command": "/usr/bin/python3 $HOME/.claude/hooks/gitlab-api-guard.py", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+改完開一個新的 Claude Code 對話讓設定生效。
+
+`gitlab-api-guard.py` 會從自己所在的目錄載入 `git-push-guard.py`，兩支要放在一起（symlink 也可以）。只需要 Python 3 標準函式庫；跑測試另外需要 `jq`。
 
 ## 防護 hooks
 
@@ -50,36 +110,6 @@ agent 在 worktree 開的是拋棄式分支，全部推上去只會把別人在�
 | [`mod-polish`](skills/mod-polish/SKILL.md) | 把 Claude Code mod 的面板做精緻：先出設計稿、SVG 卡片（純函式）、深淺主題、截圖自檢；附起手 kit |
 
 技能只寫做法與檢查點，不替專案做決定；各專案的答案（體驗目標、品牌規則、數字）留在專案自己的文件裡。
-
-## 安裝
-
-```bash
-git clone https://github.com/MiskaWu/claude-kit.git ~/claude-kit
-mkdir -p ~/.claude/hooks ~/.claude/skills ~/.claude/commands
-ln -s ~/claude-kit/hooks/*.py ~/.claude/hooks/
-ln -s ~/claude-kit/skills/* ~/.claude/skills/
-ln -s ~/claude-kit/commands/*.md ~/.claude/commands/
-```
-
-技能可以只挑想要的連結。hooks 要再掛進 `~/.claude/settings.json`：
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          { "type": "command", "command": "/usr/bin/python3 $HOME/.claude/hooks/git-push-guard.py", "timeout": 10 },
-          { "type": "command", "command": "/usr/bin/python3 $HOME/.claude/hooks/gitlab-api-guard.py", "timeout": 10 }
-        ]
-      }
-    ]
-  }
-}
-```
-
-`gitlab-api-guard.py` 會從自己所在的目錄載入 `git-push-guard.py`，兩支要放在一起（symlink 也可以）。只需要 Python 3 標準函式庫；跑測試另外需要 `jq`。
 
 ## 授權
 
